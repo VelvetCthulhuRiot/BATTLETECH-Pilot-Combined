@@ -334,6 +334,13 @@ git tag -a v0.2.0 -m "v0.2.0"; git push origin v0.2.0
 The workflow creates (or updates) the Release, uses `docs/release-notes/<tag>.md` as the body and
 attaches the zip; it is safe to re-run. Verify by downloading the asset and comparing SHA-256.
 
+> Two notes for future releases:
+> * build and deploy in **one** invocation (`build.ps1 -Deploy -Pack`) so the DLL that is deployed
+>   to your game folder is byte-identical to the one inside the release zip;
+> * `csc` output is **not** byte-reproducible (a fresh compile gets a new MVID/timestamp), so
+>   "compile again and compare hashes" is not a valid check — compare the **downloaded asset**
+>   against the uploaded one instead.
+
 ---
 
 ## Repository layout
