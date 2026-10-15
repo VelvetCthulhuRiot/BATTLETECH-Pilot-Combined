@@ -1,0 +1,65 @@
+{
+    "schema_version": 1,
+
+    "//文件说明": "这是融合 MOD（PilotCombined）的**唯一配置文件**。它由旧的两个文件合并而来：gender_ratio + popup 来自 genderratio.json，portraits 来自 portraits.json。",
+    "//改完怎么生效": "在游戏里按 F9 打开设置窗口改动（拖完即时生效，按「应用并写回配置」才会存到这个文件）。你也可以直接改这个文件，然后重启游戏。",
+    "//编码要求": "这个文件必须存成 UTF-8（不要用记事本的 ANSI 另存）。改中文时请用支持 UTF-8 的编辑器。",
+
+    "//gender_ratio": "性别刷出比例。三个百分比之和恒为 100。【重要】开启头像替换后，实际可用的性别由头像池决定：只生成『有替换头像』的性别，男女比例在可用范围内重新归一（详见 移交文档 第 6 节『肖像池优先』）。",
+    "gender_ratio": {
+        "//enabled": "false = 完全关闭性别比例调节（此时只剩头像替换功能）。",
+        "enabled": true,
+        "//other_enabled": "是否启用第三类性别（非二元性别/无性别）。关掉时 other_percent 视作 0。",
+        "other_enabled": true,
+        "//other_percent": "第三类性别占总体的百分比。",
+        "other_percent": 10.0,
+        "//female_percent": "女性占总体的百分比。",
+        "female_percent": 82.0,
+        "//male_percent": "男性占总体的百分比（可省略；省略时男性自动吃掉除此之外的余量）。",
+        "male_percent": 8.0,
+        "//other_label": "第三类性别的显示名（只影响窗口与日志的文字）。机器人属于无性别，所以默认把人类男女之外的一切都归到这一类。",
+        "other_label": "非二元性别或无性别",
+        "//lock_ratio": "是否锁定男女比例。锁定时改「第三类性别」会按下面的整数比例重排女/男，比例不会随滑块粒度漂移。",
+        "lock_ratio": true,
+        "//lock_ratio_female": "锁定比例的女方（整数）。",
+        "lock_ratio_female": 10,
+        "//lock_ratio_male": "锁定比例的男方（整数）。与女方一起构成「女:男」，会自动约分。",
+        "lock_ratio_male": 1
+    },
+
+    "//popup": "游戏内设置窗口（按热键弹出）。窗口控件全部自绘，不复用游戏预制体（原因见 docs\\UI实现笔记.md）。",
+    "popup": {
+        "//enabled": "false = 不安装热键（机制照常生效，只是没有窗口）。",
+        "enabled": true,
+        "//hotkey": "任意 UnityEngine.KeyCode 名称，例如 F9 / F10 / Insert / Home。",
+        "hotkey": "F9",
+        "//step_percent": "滑块步长（百分比）。1 = 每次走 1%，5 = 每次走 5%。",
+        "step_percent": 1,
+        "//font_file": "字体名（系统已安装的字体名，不是文件路径）。留空 = 自动从游戏界面借字体，借不到用内置 Arial（实测能显示本窗口中文）。例：Noto Sans CJK SC / Microsoft YaHei",
+        "font_file": "",
+        "female_label": "女",
+        "male_label": "男",
+        "//ui_language": "MOD 界面语言。auto = 跟随游戏语言设置（当前支持 中文 / English，德文俄文留位）；也可强制指定 en / zh / de / ru。若自动判定不符合预期，就在这里写死。",
+        "ui_language": "auto"
+    },
+
+    "//portraits": "头像替换。enabled=false 时完全不介入头像，性别比例按上面的配置原样生效。若一张肖像都没有，enabled 会被强制压成 false（见 移交文档 6.4）。",
+    "portraits": {
+        "//enabled": "是否启用头像替换。",
+        "enabled": true,
+        "//autoScan": "自动扫描 portraits\\ 下所有图片（含子目录）。子目录名 female / male / other（以及 nonbinary / 中性 等）决定性别归属，所以图片文件叫什么名字都不影响。",
+        "autoScan": true,
+        "//neutralize3DCustomization": "true = 隐藏角色创建界面的「自定义外貌」按钮（那是游戏原版的 3D 调脸入口，留着会和替换头像冲突）。",
+        "neutralize3DCustomization": false,
+        "//filterGalleryByPronoun": "true（默认）= 角色创建的「角色头像」列表只显示与所选代词同性的预设。原版列表**不看性别**，选男性也会看到女性预设、以及那唯一的非二元预设（换成替换头像后就是一张仿生人）。关掉 = 完全回到原版混合列表。注意：该性别的预设少于 8 个（例如非二元只有 1 个）、或 portraits 里没有该性别的图时，会自动退回显示全部。",
+        "filterGalleryByPronoun": true,
+        "//poolMode": "hash（推荐，同一张脸谱永远对应同一张图）| sequential。",
+        "poolMode": "hash",
+        "//defaultPortrait": "兜底单图，留空表示未命中的驾驶员保持游戏原样。",
+        "defaultPortrait": "",
+        "//pool": "显式图片池（相对 mod 目录的路径）。留空 = 用 autoScan 自动扫 portraits\\ 目录。",
+        "pool": [],
+        "//rules": "给特定驾驶员固定某张图的规则。留空 = 每个驾驶员从『自己性别』的池子里按哈希取图。例：{ \"match\": \"callsign\", \"value\": \"Dekker\", \"image\": \"portraits/male/03.png\", \"gender\": \"Male\" }",
+        "rules": []
+    }
+}

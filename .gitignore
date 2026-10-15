@@ -1,0 +1,41 @@
+# ---- 构建产物（由 build.ps1 生成，不入库）----
+out/
+dist/
+obj/
+*.dll
+*.pdb
+*.exe
+*.log
+
+# ---- 临时探查程序（tools\probe\ 里的一次性小工具，保留 .cs 源码、不提交编译产物）----
+tools/probe/*.exe
+tools/probe/*.txt
+
+# ---- 游戏运行时会写进 mod 目录的东西 ----
+# （部署目录在“我的文档”下，正常不会落进仓库；这里只是防手滑拷贝回来）
+PilotCombined.log
+genderratio.json
+portraits.json
+
+# ---- 编辑器 / 系统 ----
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+Thumbs.db
+desktop.ini
+*~
+*.tmp
+*.bak
+
+# ---- Python 工具产生的缓存 ----
+__pycache__/
+*.pyc
+
+# ---- 注意：mod\portraits\ 下的头像图片**是故意入库的** ----
+# 如果你决定改成“只发本体、图片走 Release 附件”的方案（见 docs\素材与许可.md 第 5 节），
+# 就把下面这行的注释去掉：
+# mod/portraits/female/
+# mod/portraits/male/
+# mod/portraits/other/

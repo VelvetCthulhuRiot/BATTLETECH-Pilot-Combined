@@ -1,0 +1,21 @@
+{
+    "Name": "PilotCombined",
+    "Enabled": true,
+    "Version": "0.2.0",
+    "Description": "融合 MOD（驾驶员综合）：把「驾驶员性别刷出比例」与「驾驶员头像替换」合二为一，并让头像池决定有哪些性别可用 —— 只生成有替换头像的性别，性别比例在这个可用范围内分配。可在游戏内按 F9 打开设置窗口。只影响新生成的驾驶员；存档里已有的驾驶员不受影响。可以安全地在本模组界面里启用/禁用，也可以随时删除，都不会影响读档。不修改游戏任何原文件。",
+    "Author": "VelvetCthulhuRiot",
+    "//Website": "发布前请确认这两个链接就是你的仓库地址。",
+    "Website": "https://github.com/VelvetCthulhuRiot/BATTLETECH-Pilot-Combined",
+    "Contact": "https://github.com/VelvetCthulhuRiot/BATTLETECH-Pilot-Combined/issues",
+
+    "//": "本 mod 故意做成 Game Mod（mod.json）而不是 System Mod（systemMod.json）：原版 ModLoader 在游戏内禁用系统 mod 时会抛 KeyNotFoundException 并永久损坏模组状态，游戏 mod 没有这个问题。详见 docs 目录。",
+    "//Manifest": "必须显式给一个空的 Manifest 数组，避免原版 ExpandManifest 对 null 列表做枚举。",
+    "Manifest": [],
+    "LoadImplicitManifest": false,
+
+    "//IsSaveAffecting": "声明本 mod 不影响存档；DLL 里还会用 Harmony 兜底确保生效。",
+    "IsSaveAffecting": false,
+
+    "DLL": "PilotCombined.dll",
+    "DLLEntryPoint": "PilotCombined.PilotCombinedMod.Init"
+}
