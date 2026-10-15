@@ -32,10 +32,73 @@ import struct
 import sys
 import os
 
+
+def _default_game_assembly():
+    """找游戏本体的 Assembly-CSharp.dll。
+
+    顺序：环境变量 %BATTLETECH_DIR% → Steam 库列表（注册表 + libraryfolders.vdf）
+    → 几个常见默认位置。找不到就返回 None（下面会给出明确报错）。
+    以前这里写死了一台机器的路径 —— 公开仓库里既没用又泄露本机信息。
+    """
+    rel = os.path.join("BattleTech_Data", "Managed", "Assembly-CSharp.dll")
+
+    def ok(root):
+        if not root:
+            return None
+        p = os.path.join(root, rel)
+        return p if os.path.isfile(p) else None
+
+    hit = ok(os.environ.get("BATTLETECH_DIR"))
+    if hit:
+        return hit
+
+    roots = []
+    # 注册表里的 Steam 安装位置（HKCU\Software\Valve\Steam\SteamPath）
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Valve\Steam") as k:
+            roots.append(winreg.QueryValueEx(k, "SteamPath")[0].replace("/", "\\"))
+    except Exception:
+        pass
+    roots += [r"C:\Program Files (x86)\Steam", r"C:\Program Files\Steam",
+              r"D:\Steam", r"E:\Steam", r"F:\Steam"]
+
+    for sr in dict.fromkeys(roots):
+        if not os.path.isdir(sr):
+            continue
+        libs = [sr]
+        vdf = os.path.join(sr, "steamapps", "libraryfolders.vdf")
+        if os.path.isfile(vdf):
+            try:
+                import re
+                for line in open(vdf, encoding="utf-8", errors="replace"):
+                    m = re.search(r'"path"\s*"([^"]+)"', line)
+                    if m:
+                        libs.append(m.group(1).replace("\\\\", "\\"))
+            except Exception:
+                pass
+        for lib in dict.fromkeys(libs):
+            hit = ok(os.path.join(lib, "steamapps", "common", "BATTLETECH"))
+            if hit:
+                return hit
+
+    for cand in (r"C:\Program Files (x86)\Steam\steamapps\common\BATTLETECH",
+                 r"C:\Program Files\GOG Galaxy\Games\BATTLETECH",
+                 r"C:\GOG Games\BATTLETECH"):
+        hit = ok(cand)
+        if hit:
+            return hit
+    return None
+
+
 # 默认读游戏本体；想检查别的程序集（例如我们自己编出来的 PilotCombined.dll）
 # 就设环境变量：$env:ILTOOL_DLL="C:\...\PilotCombined.dll"
-PATH = os.environ.get("ILTOOL_DLL") or \
-    r"D:\MyDownload\Things\Steam\steamapps\common\BATTLETECH\BattleTech_Data\Managed\Assembly-CSharp.dll"
+PATH = os.environ.get("ILTOOL_DLL") or _default_game_assembly()
+if not PATH or not os.path.isfile(PATH):
+    sys.stderr.write(
+        "找不到游戏程序集。请设 %%BATTLETECH_DIR%% 指向游戏安装目录，"
+        "或用 $env:ILTOOL_DLL 指定要分析的 dll。\n")
+    sys.exit(2)
 
 data = open(PATH, "rb").read()
 u2 = lambda o: struct.unpack_from("<H", data, o)[0]

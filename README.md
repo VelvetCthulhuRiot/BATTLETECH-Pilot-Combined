@@ -312,10 +312,27 @@ The compiler is the .NET Framework `csc.exe` shipped with Windows
 |---|---|
 | `tools\check_dll.ps1` | reflection assertions over the built DLL (entry point, patch set, no duplicate save patch) |
 | `tools\verify_deploy.py` | validates the deployed folder: JSON parses, pool census, DLL is the one just built |
+| `tools\check_publish.py` | pre-publish audit over the **tracked** files: secrets/credentials, files > 50 MB, local absolute paths or usernames, binary inventory |
 | `tools\check_encoding.py` | catches GBK mojibake in sources/docs |
 | `tools\check_loc.py` | catches UI strings that bypass the localisation layer |
 | `tools\dump_loc.py` | regenerates `loc\*.json` from the built-in table |
+| `tools\resolve_gamedir.ps1` | shared game-directory locator (dot-sourced by `build.ps1`, `check_dll.ps1`, `probe_api.ps1`) |
 | `tools\probe_api.ps1`, `tools\iltool.py` | reflection / IL inspection of the game assemblies (used to verify game APIs before writing patches) |
+
+### Releasing
+
+Releases are published by `.github/workflows/attach-release-asset.yml` — no local
+`gh release upload` (some networks cannot reach `uploads.github.com`):
+
+```powershell
+build.ps1 -Pack                                   # -> dist\PilotCombined-0.2.0.zip
+copy dist\PilotCombined-0.2.0.zip .               # the workflow uploads a repo-root zip
+# write docs\release-notes\v0.2.0.md, then:
+git tag -a v0.2.0 -m "v0.2.0"; git push origin v0.2.0
+```
+
+The workflow creates (or updates) the Release, uses `docs/release-notes/<tag>.md` as the body and
+attaches the zip; it is safe to re-run. Verify by downloading the asset and comparing SHA-256.
 
 ---
 

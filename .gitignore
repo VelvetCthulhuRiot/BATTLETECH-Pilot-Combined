@@ -1,41 +1,76 @@
-# ---- 构建产物（由 build.ps1 生成，不入库）----
+# ============================================================================
+#  .gitignore —— 哪些东西不进仓库，以及为什么
+#
+#  原则：仓库只放"人写的东西"（源码、文档、配置模板、语言文件、以及作为素材的头像
+#  图片）。所有"机器生成或本机专属"的东西都挡在外面 —— 它们要么能一键重建，
+#  要么含本机信息 / 体积大。
+#
+#  ⚠️ 注意：gitignore **不支持行尾注释**。`out/   # 说明` 会被当成一个"带空格和 #
+#  的匹配模式"，结果是这条规则**完全失效**（踩过：out/ 与 dist/ 因此被 git add 进去）。
+#  所以下面所有说明都是独立注释行。
+# ============================================================================
+
+# ---- 1. 构建产物：一条命令就能重建（build.ps1 -Test / -Deploy），没有理由入库 ----
+# build.ps1 的暂存目录（DLL + 打好的 mod 目录）
 out/
+# build.ps1 -Pack 生成的发布 zip（真正要挂 Release 的那份单独放在仓库根目录）
 dist/
+# 编译中间产物
 obj/
+# 编译结果；游戏自带的 0Harmony.dll 之类也绝不入库
 *.dll
+# 调试符号
 *.pdb
+# 工具/探查程序的可执行文件
 *.exe
+
+# ---- 2. 运行时会写进 mod 目录的文件：那是"用户数据"，不是项目内容 ----
+# PilotCombined.log（每次启动重写，里面含本机路径）
 *.log
-
-# ---- 临时探查程序（tools\probe\ 里的一次性小工具，保留 .cs 源码、不提交编译产物）----
-tools/probe/*.exe
-tools/probe/*.txt
-
-# ---- 游戏运行时会写进 mod 目录的东西 ----
-# （部署目录在“我的文档”下，正常不会落进仓库；这里只是防手滑拷贝回来）
 PilotCombined.log
+# 旧单 MOD 的配置（已由 combined.json 取代；内容是用户自己的设置）
 genderratio.json
 portraits.json
 
-# ---- 编辑器 / 系统 ----
+# ---- 3. 编辑器 / 系统 / 临时文件 ----
 .vs/
 .vscode/
 .idea/
 *.user
 *.suo
-Thumbs.db
-desktop.ini
-*~
 *.tmp
 *.bak
+# 编辑器备份文件
+*~
+# Windows 缩略图缓存
+Thumbs.db
+desktop.ini
 
-# ---- Python 工具产生的缓存 ----
+# ---- 4. Python 工具的运行缓存 ----
 __pycache__/
+# 解释器字节码（换 python 版本就失效）
 *.pyc
 
-# ---- 注意：mod\portraits\ 下的头像图片**是故意入库的** ----
-# 如果你决定改成“只发本体、图片走 Release 附件”的方案（见 docs\素材与许可.md 第 5 节），
-# 就把下面这行的注释去掉：
+# ---- 5. 一次性探查程序的产物（源码保留，编译产物与输出不提交）----
+# tools/probe/ 里是当初核实游戏 API 签名时写的临时小程序；源码留着当"怎么查出来的"
+# 记录，但 .exe 与抓取到的输出不入库。
+tools/probe/*.exe
+tools/probe/*.txt
+
+# ---- 6. 例外：Release 附件与发版机制要**提交进仓库** ----
+# 为什么反着来：本机 uploads.github.com 被 DNS 污染，无法直传 release 资产，
+# 所以做法是"把 zip 提交进仓库 → 打 tag 推上去 → GitHub Actions 在 runner 上
+# 建 Release 并挂这个 zip"（工作流见 .github/workflows/attach-release-asset.yml）。
+# 已跟踪的文件本来就不受 .gitignore 影响，这里显式写出来只是防止以后误删规则。
+!/PilotCombined-*.zip
+!/.github/workflows/*.yml
+!/docs/release-notes/*.md
+
+# ---- 说明：mod/portraits/ 下的头像图片是**故意入库**的 ----
+# 它们是 MOD 的素材（本地 ComfyUI 生成、本地脚本抠图），不是游戏资源。
+# 如果你以后决定改成"仓库只发本体、图片走 Release 附件"的方案
+# （见 docs/素材与许可.md 第 5 节），把下面三行的注释去掉，再执行
+#   git rm -r --cached mod/portraits/female mod/portraits/male mod/portraits/other
 # mod/portraits/female/
 # mod/portraits/male/
 # mod/portraits/other/

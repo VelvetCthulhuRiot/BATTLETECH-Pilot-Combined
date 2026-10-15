@@ -852,7 +852,7 @@ HBSSliderInput::SetLimits      ->  void (Single, Single)
 `tools\probe\` 下四个 probe，用 csc 编译（引用 `Assembly-CSharp.dll` 等），直接跑：
 
 ```powershell
-$g = "D:\MyDownload\Things\Steam\steamapps\common\BATTLETECH"; $m = "$g\BattleTech_Data\Managed"
+$g = "%BATTLETECH%"; $m = "$g\BattleTech_Data\Managed"
 & "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /target:exe /langversion:5 `
   /codepage:65001 /out:"$env:TEMP\Probe.exe" `
   "/r:$m\Assembly-CSharp.dll" "/r:$m\UnityEngine.dll" "/r:$m\UnityEngine.CoreModule.dll" `

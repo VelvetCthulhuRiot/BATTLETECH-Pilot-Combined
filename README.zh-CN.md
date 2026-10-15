@@ -302,10 +302,27 @@ powershell -NoProfile -ExecutionPolicy Bypass -File build.ps1 -Pack
 |---|---|
 | `tools\check_dll.ps1` | 对编译产物做反射断言（入口点、补丁集合、存档补丁不得重复） |
 | `tools\verify_deploy.py` | 校验部署目录：JSON 可解析、图片池普查、DLL 与刚编出的一致（哈希） |
+| `tools\check_publish.py` | **发布前审计**（只看已跟踪文件）：密钥/凭据、超过 50MB 的文件、本机绝对路径或用户名、二进制清单 |
 | `tools\check_encoding.py` | 抓源码/文档里的 GBK 乱码 |
 | `tools\check_loc.py` | 抓"没走多语言层"的界面文案 |
 | `tools\dump_loc.py` | 从内置表重新生成 `loc\*.json` |
+| `tools\resolve_gamedir.ps1` | 共享的"找游戏目录"脚本（`build.ps1` / `check_dll.ps1` / `probe_api.ps1` 都引用它） |
 | `tools\probe_api.ps1`、`tools\iltool.py` | 反射 / IL 工具，用来在写补丁前核实游戏 API 的真实签名 |
+
+### 发版
+
+由 `.github/workflows/attach-release-asset.yml` 完成（不用本地 `gh release upload` ——
+部分网络环境连不上 `uploads.github.com`）：
+
+```powershell
+build.ps1 -Pack                                   # -> dist\PilotCombined-0.2.0.zip
+copy dist\PilotCombined-0.2.0.zip .               # 工作流上传的是仓库根目录里的 zip
+# 写好 docs\release-notes\v0.2.0.md，然后：
+git tag -a v0.2.0 -m "v0.2.0"; git push origin v0.2.0
+```
+
+工作流会创建（或更新）Release、用 `docs/release-notes/<tag>.md` 当说明、挂上 zip，**可安全重跑**。
+验证方式：把资产**下载回来比 SHA-256**。
 
 ---
 

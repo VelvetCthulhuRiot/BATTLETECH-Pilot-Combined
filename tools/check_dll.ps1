@@ -14,12 +14,21 @@
 # ============================================================================
 [CmdletBinding()]
 param(
-    [string]$GameDir = "D:\MyDownload\Things\Steam\steamapps\common\BATTLETECH",
+    [string]$GameDir = "",
     [string]$Dll = ""
 )
 
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
+
+# locate the game (same logic as build.ps1 / iltool.py): -GameDir, %BATTLETECH_DIR%,
+# Steam's library list, then the usual default locations
+. (Join-Path $PSScriptRoot "resolve_gamedir.ps1")
+$GameDir = Resolve-BattleTechDir $GameDir
+if (-not $GameDir) {
+    throw "BATTLETECH not found. Pass it explicitly: check_dll.ps1 -GameDir ""X:\path\to\BATTLETECH"""
+}
+
 if (-not $Dll) { $Dll = Join-Path $root "out\PilotCombined.dll" }
 if (-not (Test-Path $Dll)) { throw "dll not found: $Dll" }
 

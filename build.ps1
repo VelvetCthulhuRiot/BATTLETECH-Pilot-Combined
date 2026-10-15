@@ -12,7 +12,9 @@
 #     powershell -NoProfile -ExecutionPolicy Bypass -File build.ps1 -Test -Deploy
 #
 #  Options:
-#     -GameDir <path>   BattleTech install dir
+#     -GameDir <path>   BattleTech install dir.  If omitted it is auto-detected
+#                       (-GameDir, then %BATTLETECH_DIR%, then Steam's library list,
+#                        then the usual default locations).
 #     -ModsDir <path>   mods dir (default: %USERPROFILE%\Documents\My Games\BattleTech\mods)
 #     -Deploy           copy the staged mod into the mods dir
 #     -Clean            wipe the installed mod folder first (default: merge, so a
@@ -23,7 +25,7 @@
 # ============================================================================
 [CmdletBinding()]
 param(
-    [string]$GameDir = "D:\MyDownload\Things\Steam\steamapps\common\BATTLETECH",
+    [string]$GameDir = "",
     [string]$ModsDir = "",
     [switch]$Deploy,
     [switch]$Clean,
@@ -37,6 +39,18 @@ $ModFolderName = "PilotCombined"
 $DllName = "PilotCombined.dll"
 
 if (-not $ModsDir) { $ModsDir = Join-Path $env:USERPROFILE "Documents\My Games\BattleTech\mods" }
+
+# ---- locate the game -------------------------------------------------------
+# The default -GameDir used to be a hard-coded machine path, which is useless (and
+# leaks a local path) in a public repository.  The resolver lives in
+# tools\resolve_gamedir.ps1 so that check_dll.ps1 / probe_api.ps1 share it:
+#   -GameDir  ->  %BATTLETECH_DIR%  ->  Steam library list  ->  usual locations.
+. (Join-Path $root "tools\resolve_gamedir.ps1")
+$GameDir = Resolve-BattleTechDir $GameDir
+if (-not $GameDir) {
+    throw "BATTLETECH not found. Pass it explicitly:  build.ps1 -GameDir ""X:\path\to\BATTLETECH"""
+}
+Write-Host "game dir : $GameDir"
 
 # ---- compiler -------------------------------------------------------------
 $cscCandidates = @(

@@ -1,0 +1,89 @@
+name: Attach release asset
+
+# 为什么用 Actions 而不是本地 gh release upload:
+# 本机 uploads.github.com 被 DNS 污染, 无法直传 release 资产。把上传放到 GitHub 自己的
+# runner 上执行就绕开了这类问题, 而且以后发版只要打个 tag 就行。
+#
+# 发版步骤:
+#   1. 把要挂的 zip 放在仓库根目录 (例如 PilotCombined-0.2.0.zip) 并提交
+#   2. 写发版说明 docs/release-notes/vX.Y.Z.md
+#   3. git tag -a vX.Y.Z -m "vX.Y.Z" && git push origin vX.Y.Z
+#   4. 工作流会: 创建(或更新) Release + 用该 md 当说明 + 挂上 zip (可安全重跑)
+#
+# 验证: 用 API 看 assets, 并把资产**下载回来比 SHA256** (别只看工作流成功)
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: '要附加到哪个 release (tag 名)'
+        required: true
+        default: 'v0.2.0'
+      asset:
+        description: '要附加的文件 (仓库内路径; 留空 = 自动找 PilotCombined-*.zip)'
+        required: false
+        default: ''
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  attach:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v4
+
+      - name: 创建/更新 release 并附加压缩包
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ inputs.tag || github.ref_name }}
+          ASSET_IN: ${{ inputs.asset }}
+        run: |
+          set -euo pipefail
+
+          # 资产: 优先用输入值; 否则先找与本 tag 同版本号的 zip, 再退回最新的那个
+          ASSET="$ASSET_IN"
+          if [ -z "$ASSET" ]; then
+            VER="${TAG#v}"
+            if [ -f "PilotCombined-$VER.zip" ]; then
+              ASSET="PilotCombined-$VER.zip"
+            else
+              ASSET="$(ls -1 PilotCombined-*.zip 2>/dev/null | sort -V | tail -1 || true)"
+            fi
+          fi
+          if [ -z "$ASSET" ] || [ ! -f "$ASSET" ]; then
+            echo "!! 找不到要附加的 zip (输入='$ASSET_IN'，仓库根目录下的 zip:)"
+            ls -l *.zip || true
+            exit 1
+          fi
+
+          # 发版说明放在 docs/release-notes/<tag>.md, 与代码一起版本化
+          NOTES="docs/release-notes/$TAG.md"
+          echo "tag=$TAG  asset=$ASSET  notes=$NOTES"
+          ls -l "$ASSET"
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "release $TAG 已存在, 更新说明"
+            if [ -f "$NOTES" ]; then gh release edit "$TAG" --notes-file "$NOTES"; fi
+          else
+            echo "release $TAG 不存在, 创建它"
+            if [ -f "$NOTES" ]; then
+              gh release create "$TAG" --title "$TAG" --notes-file "$NOTES"
+            else
+              echo "!! 找不到 $NOTES, 退回自动生成的 changelog"
+              gh release create "$TAG" --title "$TAG" --generate-notes
+            fi
+          fi
+
+          gh release upload "$TAG" "$ASSET" --clobber
+
+          echo "--- 当前 release 资源 ---"
+          gh release view "$TAG" --json name,tagName,assets \
+            --jq '"release: \(.name)  tag: \(.tagName)", (.assets[] | "  \(.name)  \(.size) 字节")'
+
+          echo "--- zip 的 SHA256（与本地比对用） ---"
+          sha256sum "$ASSET"

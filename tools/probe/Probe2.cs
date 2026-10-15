@@ -3,7 +3,7 @@ using System.Reflection;
 
 class Probe2
 {
-    const string AsmPath = @"D:\MyDownload\Things\Steam\steamapps\common\BATTLETECH\BattleTech_Data\Managed\Assembly-CSharp.dll";
+    const string AsmPath = @"X:\path\to\BATTLETECH\BattleTech_Data\Managed\Assembly-CSharp.dll";
     static Assembly asm;
 
     static void Main()

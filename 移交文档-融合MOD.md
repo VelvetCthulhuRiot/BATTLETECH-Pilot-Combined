@@ -6,10 +6,10 @@
 > 尤其第 3 节（决策已锁定）、第 6 节（核心规则）、第 8 节（踩过的坑）。
 >
 > 撰写时间：2026-10-04（决策锁定版）
-> 新工程：`C:\Users\lxp_0\Documents\BTCombinedMod\`
+> 新工程：`%USERPROFILE%\Documents\BTCombinedMod\`
 > 旧工程（**只读参考，不要改动**）：
-> * `C:\Users\lxp_0\Documents\BTGenderRatioMod\`（v0.2.16）
-> * `C:\Users\lxp_0\Documents\BTPortraitMod\`（v0.4.1）
+> * `%USERPROFILE%\Documents\BTGenderRatioMod\`（v0.2.16）
+> * `%USERPROFILE%\Documents\BTPortraitMod\`（v0.4.1）
 
 ---
 
@@ -79,7 +79,7 @@
 
 ## 2. 两个源工程的现状（已核实）
 
-### 2.1 GenderRatio（`C:\Users\lxp_0\Documents\BTGenderRatioMod\`，v0.2.16）
+### 2.1 GenderRatio（`%USERPROFILE%\Documents\BTGenderRatioMod\`，v0.2.16）
 
 ```
 build.ps1                    编译 / 脱机单测 / 部署
@@ -106,7 +106,7 @@ docs\接管-性别比例MOD.md      上一轮交接的修正与补充
 日志 `GenderRatio.log`；配置 `genderratio.json`；窗口 `WinW=760 / WinH=552`，Canvas 用
 **ConstantPixelSize + scaleFactor=1**。
 
-### 2.2 PortraitSwap（`C:\Users\lxp_0\Documents\BTPortraitMod\`，v0.4.1）
+### 2.2 PortraitSwap（`%USERPROFILE%\Documents\BTPortraitMod\`，v0.4.1）
 
 ```
 build.ps1 / README.md
@@ -206,8 +206,8 @@ PortraitSwap 的 `mod.json` 把 **`Manifest` 显式写成空数组 `[]`、`LoadI
 
 | 性别 | 目录 | 数量 |
 |---|---|---|
-| 女性 | `C:\Users\lxp_0\Pictures\女性头像` | **40 张**（不重复） |
-| 男性 | `C:\Users\lxp_0\Pictures\男性头像` | **10 张**（不重复） |
+| 女性 | `%USERPROFILE%\Pictures\女性头像` | **40 张**（不重复） |
+| 男性 | `%USERPROFILE%\Pictures\男性头像` | **10 张**（不重复） |
 | 其他性别 | （尚未准备） | 0 |
 
 * 旧 PortraitSwap 部署目录里曾是 40/40，**以 `Pictures` 里的 40/10 为准**（用户明确说 10 张男性）。
@@ -611,7 +611,7 @@ $csc = "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe"
 
 游戏程序集（**已核实**）：
 ```
-游戏根目录 = D:\MyDownload\Things\Steam\steamapps\common\BATTLETECH
+游戏根目录 = %BATTLETECH%
 Managed    = <根>\BattleTech_Data\Managed
 Harmony    = <根>\BattleTech_Data\StreamingAssets\data\mods\HBS\0Harmony.dll
 ```
@@ -710,7 +710,7 @@ python tools\check_encoding.py    # 扫描文本文件有无 GBK 乱码
 |---|---|
 | 游戏版本 | BattleTech **1.9.1**（Build 686R） |
 | Unity 版本 | **2018.4.2f1**（`UnityPlayer.dll` / `globalgamemanagers` 的版本串） |
-| 安装路径 | `D:\MyDownload\Things\Steam\steamapps\common\BATTLETECH` |
+| 安装路径 | `%BATTLETECH%` |
 | MOD 目录 | `%USERPROFILE%\Documents\My Games\BattleTech\mods` |
 | 当前已装 MOD | `BTHanHua`、`BTHanHuaFont`、`HBS`（**一个字节都不要动**）、`PortraitSwap`、`GenderRatio` |
 | 生涯模式开局人数 | `SimGameConstants.json` → `CareerMode.StartingMechWarriorCount = 4`（**没有固定名单**，随机生成 ⇒ 受本 MOD 影响） |

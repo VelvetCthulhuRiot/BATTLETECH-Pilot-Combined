@@ -1,0 +1,36 @@
+# ============================================================================
+#  .gitattributes —— 换行/编码/二进制/语言统计的规则
+#
+#  为什么需要它：Windows 上 git 默认可能把文本按 CRLF 存进仓库，别的人（或 CI 的
+#  Ubuntu runner）检出后就变成 CRLF 混用；而二进制文件一旦被"文本化"，git 会尝试做
+#  换行转换，**会直接损坏文件**（PNG/DLL/zip 都中过这个招）。
+# ============================================================================
+
+# 默认：文本文件按 LF 存进仓库（工作区检出也用 LF）。
+# 对本项目尤其重要：C# 用 /codepage:65001 编译、JSON 由 Newtonsoft 解析、
+# python 脚本在 ubuntu runner 上跑 —— 统一 LF 能省掉一整类"在我机器上好好的"问题。
+* text=auto eol=lf
+
+# ---- 二进制：禁止任何换行/编码转换 ----
+# （PNG 是 MOD 的图片池；zip 是 Release 附件；dll/exe 是构建产物，正常不入库，
+#   但万一有人手滑 add 了，标记 binary 至少不会损坏它）
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.webp  binary
+*.dds   binary
+*.zip   binary
+*.dll   binary
+*.exe   binary
+*.pdb   binary
+*.ttf   binary
+*.otf   binary
+
+# ---- 让 GitHub 正确识别语言 ----
+*.cs   linguist-language=C#
+*.ps1  linguist-language=PowerShell
+*.py   linguist-language=Python
+
+# ---- 不计入语言统计的生成物 / 数据 ----
+# （当前没有这类文件，留作说明：真要加生成物时，用 linguist-generated=true 标注）
+# docs/**  linguist-documentation=true

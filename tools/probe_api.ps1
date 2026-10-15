@@ -15,11 +15,16 @@
 param(
     [Parameter(Mandatory = $true)][string]$Type,
     [string]$Member = "",
-    [string]$GameDir = "D:\MyDownload\Things\Steam\steamapps\common\BATTLETECH",
+    [string]$GameDir = "",
     [switch]$Methods
 )
 
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot "resolve_gamedir.ps1")
+$GameDir = Resolve-BattleTechDir $GameDir
+if (-not $GameDir) {
+    throw "BATTLETECH not found. Pass it explicitly: probe_api.ps1 -Type X -GameDir ""X:\path\to\BATTLETECH"""
+}
 $managed = Join-Path $GameDir "BattleTech_Data\Managed"
 
 $handler = [System.ResolveEventHandler] {
